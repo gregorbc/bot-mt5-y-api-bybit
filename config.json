@@ -1,8 +1,8 @@
 {
   "exchange": "bybit",
   "bybit": {
-    "api_key": "7DR2LXscaoHQfbrmnA",
-    "api_secret": "eEAAxGbQAitGcTxivjmO06j8xnIrD52D1ahP",
+    "api_key": "",
+    "api_secret": "",
     "testnet": true
   },
   "bot": {
@@ -22,7 +22,7 @@
     "min_confidence": 45
   },
   "nvidia": {
-    "api_key": "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",
+    "api_key": "nvapi-",
     "enabled": false,
     "interval_sec": 480
   },
@@ -30,7 +30,7 @@
     "host": "localhost",
     "dbname": "erika_bot",
     "user": "erika_bot",
-    "password": "Enladisco123@"
+    "password": "@"
   },
   "paths": {
     "log":        "/home/erika/web/binance.gregorbritez.cat/public_html/bot.log",
