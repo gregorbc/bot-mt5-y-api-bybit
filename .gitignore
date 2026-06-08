@@ -1,0 +1,42 @@
+```php
+# Compiled and build artifacts
+*.o
+*.obj
+*.out
+*.class
+*.pyc
+__pycache__/
+
+# Dependencies
+vendor/
+node_modules/
+venv/
+.venv/
+.env
+.env.local
+*.env.*
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Build directories
+build/
+dist/
+target/
+coverage/
+htmlcov/
+*.coverage
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+```
