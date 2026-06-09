@@ -28,9 +28,9 @@ class Config
     private function load(): void
     {
         $cfgPaths = [
+            dirname(__DIR__, 2) . '/config/config.json',
             dirname(__DIR__, 2) . '/private/config.json',
-            dirname(__DIR__, 2) . '/config.json',
-            __DIR__ . '/../../config.json',
+            __DIR__ . '/../../config/config.json',
             '/home/erika/config/config.json',
         ];
         
