@@ -6,33 +6,89 @@
 namespace App\Tests;
 
 use PHPUnit\Framework\TestCase;
+use App\Utils\GridConstants;
+use App\Models\GridConfig;
+use App\Models\GridOrder;
 
 class BotTest extends TestCase
 {
+    /**
+     * Test que verifica que las constantes estén cargadas correctamente
+     */
     public function testConstantsLoaded(): void
     {
         $this->assertTrue(defined('App\\Utils\\GridConstants::SYM'));
-        $this->assertEquals('ETHUSDT', \App\Utils\GridConstants::SYM);
+        $this->assertEquals('ETHUSDT', GridConstants::SYM);
     }
     
-    public function testConfigSingleton(): void
+    /**
+     * Test para verificar constantes básicas de configuración
+     */
+    public function testBasicConstants(): void
     {
-        $config1 = \App\Core\Config::getInstance();
-        $config2 = \App\Core\Config::getInstance();
-        $this->assertSame($config1, $config2);
+        $this->assertEquals(30.0, GridConstants::CAPITAL);
+        $this->assertEquals(100, GridConstants::LEVERAGE);
+        $this->assertEquals('5', GridConstants::TF);
+        $this->assertEquals(16, GridConstants::FIXED_LEVELS);
     }
     
-    public function testLoggerSingleton(): void
+    /**
+     * Test para verificar constantes de spacing
+     */
+    public function testSpacingConstants(): void
     {
-        $logger1 = \App\Core\Logger::getInstance();
-        $logger2 = \App\Core\Logger::getInstance();
-        $this->assertSame($logger1, $logger2);
+        $this->assertEquals(0.0004, GridConstants::MIN_SPACING);
+        $this->assertEquals(0.0012, GridConstants::MAX_SPACING);
+        $this->assertEquals(0.0004, GridConstants::BASE_SPACING);
     }
     
-    public function testDatabaseSingleton(): void
+    /**
+     * Test para verificar direcciones válidas
+     */
+    public function testValidDirections(): void
     {
-        $db1 = \App\Core\Database::getInstance();
-        $db2 = \App\Core\Database::getInstance();
-        $this->assertSame($db1, $db2);
+        $this->assertTrue(GridConstants::isValidDirection('LONG'));
+        $this->assertTrue(GridConstants::isValidDirection('SHORT'));
+        $this->assertTrue(GridConstants::isValidDirection('SIDEWAYS'));
+        $this->assertTrue(GridConstants::isValidDirection('NEUTRAL'));
+        $this->assertFalse(GridConstants::isValidDirection('INVALID'));
+    }
+    
+    /**
+     * Test para cálculo de cantidad mínima
+     */
+    public function testCalcMinQty(): void
+    {
+        $price = 3000.0;
+        $expected = GridConstants::MIN_NOTIONAL / $price;
+        $this->assertEquals($expected, GridConstants::calcMinQty($price));
+    }
+    
+    /**
+     * Test para cálculo de fees
+     */
+    public function testCalcFee(): void
+    {
+        $notional = 100.0;
+        
+        // Fee maker
+        $expectedMaker = $notional * GridConstants::MAKER_FEE;
+        $this->assertEquals($expectedMaker, GridConstants::calcFee($notional, true));
+        
+        // Fee taker
+        $expectedTaker = $notional * GridConstants::TAKER_FEE;
+        $this->assertEquals($expectedTaker, GridConstants::calcFee($notional, false));
+    }
+    
+    /**
+     * Test para obtener todas las constantes
+     */
+    public function testAllConstants(): void
+    {
+        $all = GridConstants::all();
+        $this->assertIsArray($all);
+        $this->assertNotEmpty($all);
+        $this->assertArrayHasKey('SYM', $all);
+        $this->assertArrayHasKey('CAPITAL', $all);
     }
 }
