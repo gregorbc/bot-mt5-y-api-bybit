@@ -1,17 +1,1 @@
-# Installation and build artifacts
-installers/
-*.sh
-*.bat
-
-# Logs and temp files
-*.log
-*.tmp
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# Editors
-.vscode/
-.idea/
+Nothing should be ignored based on the provided file changes. The added files (`INSTALACION_WINDOWS.md` and `install.ps1`) are documentation/script files that should be tracked in version control.
