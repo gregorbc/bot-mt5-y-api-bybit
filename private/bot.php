@@ -19,6 +19,7 @@ use App\Core\Config;
 use App\Core\Database;
 use App\Core\Logger;
 use App\Services\BybitApi;
+use App\Services\MlPredictor;
 use App\Models\GridConfig;
 use App\Models\GridOrder;
 use App\Utils\GridConstants;
@@ -28,6 +29,7 @@ $logger = Logger::getInstance();
 $logger->enableConsoleOutput(true);
 $db = Database::getInstance();
 $bybit = new BybitApi();
+$mlPredictor = MlPredictor::getInstance();
 
 $log = fn($level, $msg) => $logger->log($level, $msg);
 $lI = fn($m) => $log(Logger::INFO, $m);
@@ -159,9 +161,18 @@ function parseCandles(array $raw): array {
 }
 
 function calculateDirection(array $candles): array {
+    global $mlPredictor;
+    
+    // Calcular features para ML
+    $features = $mlPredictor->calculateFeatures($candles);
+    
+    // Obtener predicción del ensemble ML
+    $mlPrediction = $mlPredictor->predict($features);
+    
+    // También calcular indicadores técnicos tradicionales como fallback
     $closes = array_column($candles, 'c');
     $rsi = rsiLast($closes, 14);
-    $macd = macdHistLast($closes);
+    $macd = macdHistLast($candles);
     $atr = atrPctLast($candles, 14);
     $e9 = ema($closes, 9);
     $e21 = ema($closes, 21);
@@ -169,6 +180,7 @@ function calculateDirection(array $candles): array {
     $lastClose = end($closes);
     $e9Last = end($e9);
     $e21Last = end($e21);
+    
     $trend = 'NEUTRAL';
     $strength = 0;
     if ($lastClose > $e9Last && $e9Last > $e21Last) {
@@ -178,16 +190,36 @@ function calculateDirection(array $candles): array {
         $trend = 'BEARISH';
         $strength = (end($e50) && $lastClose < end($e50)) ? 2 : 1;
     }
-    $confidence = 50;
-    $reason = "Neutral - sin señal clara";
-    if ($trend === 'BULLISH' && $rsi < 70 && $macd > 0) {
-        $confidence = min(95, 50 + $strength * 15 + ($rsi < 50 ? 10 : 0));
-        $reason = "Tendencia alcista (RSI=$rsi, MACD positivo)";
-    } elseif ($trend === 'BEARISH' && $rsi > 30 && $macd < 0) {
-        $confidence = min(95, 50 + $strength * 15 + ($rsi > 50 ? 10 : 0));
-        $reason = "Tendencia bajista (RSI=$rsi, MACD negativo)";
+    
+    // Usar predicción ML si tiene confianza suficiente
+    if ($mlPrediction['confidence'] >= 60) {
+        $direction = $mlPrediction['direction'];
+        $confidence = $mlPrediction['confidence'];
+        $reason = "ML Ensemble: {$mlPrediction['direction']} (conf: {$mlPrediction['confidence']}%, pred: {$mlPrediction['prediction']})";
+    } else {
+        // Fallback a análisis técnico tradicional
+        $confidence = 50;
+        $reason = "Neutral - sin señal clara";
+        $direction = 'NEUTRAL';
+        
+        if ($trend === 'BULLISH' && $rsi < 70 && $macd > 0) {
+            $direction = 'LONG';
+            $confidence = min(95, 50 + $strength * 15 + ($rsi < 50 ? 10 : 0));
+            $reason = "Tendencia alcista (RSI=$rsi, MACD positivo)";
+        } elseif ($trend === 'BEARISH' && $rsi > 30 && $macd < 0) {
+            $direction = 'SHORT';
+            $confidence = min(95, 50 + $strength * 15 + ($rsi > 50 ? 10 : 0));
+            $reason = "Tendencia bajista (RSI=$rsi, MACD negativo)";
+        }
     }
-    return ['direction' => $trend, 'confidence' => (int)$confidence, 'reason' => $reason, 'atr' => $atr];
+    
+    return [
+        'direction' => $direction,
+        'confidence' => (int)$confidence,
+        'reason' => $reason,
+        'atr' => $atr,
+        'ml_prediction' => $mlPrediction
+    ];
 }
 
 $lI("[Bot] Entrando al bucle principal...");

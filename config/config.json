@@ -18,8 +18,12 @@
     "short_levels": 8
   },
   "ml": {
-    "weights_file": "/home/erika/web/binance.gregorbritez.cat/public_html/ml_weights_v2.json",
-    "min_confidence": 45
+    "weights_file": "/workspace/data/ml_weights_v2.json",
+    "volatility_weights": "/workspace/data/volatility_weights.json",
+    "volatility_weights_ridge": "/workspace/data/volatility_weights_ridge.json",
+    "min_confidence": 45,
+    "use_ridge": true,
+    "ensemble_enabled": true
   },
   "nvidia": {
     "api_key": "nvapi-",
@@ -33,13 +37,14 @@
     "password": "@"
   },
   "paths": {
-    "log":        "/home/erika/web/binance.gregorbritez.cat/public_html/bot.log",
-    "web_dir":    "/home/erika/web/binance.gregorbritez.cat/public_html",
-    "config_dir": "/home/erika/web/binance.gregorbritez.cat/private",
-    "status":     "/home/erika/web/binance.gregorbritez.cat/private/grid_status.json",
-    "pid":        "/home/erika/web/binance.gregorbritez.cat/public_html/grid_bot.pid",
-    "conf_hist":  "/home/erika/web/binance.gregorbritez.cat/private/grid_confidence.json",
-    "ctrl":       "/home/erika/web/binance.gregorbritez.cat/private/grid_control.json"
+    "log":        "/workspace/logs/bot.log",
+    "web_dir":    "/workspace/public",
+    "config_dir": "/workspace/config",
+    "data_dir":   "/workspace/data",
+    "status":     "/workspace/private/grid_status.json",
+    "pid":        "/workspace/private/grid_bot.pid",
+    "conf_hist":  "/workspace/private/grid_confidence.json",
+    "ctrl":       "/workspace/private/grid_control.json"
   },
   "security_token": "",
   "ws_token": ""
